@@ -69,9 +69,8 @@ public class UserController {
 
         //执行获取令牌
         RateLimitResult result = rateLimitClient.acquire(a);
-
         //获取结果
-        if (result == RateLimitResult.ERROR) {
+        if (result == RateLimitResult.ACQUIRE_FAIL) {
             System.err.println("请求[失败]," + msg );
             return false;
         }else if (result == RateLimitResult.SUCCESS){

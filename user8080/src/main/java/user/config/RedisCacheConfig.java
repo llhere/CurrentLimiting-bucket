@@ -23,7 +23,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import user.domain.RateLimitVo;
 import user.util.RateLimitClient;
 
-import java.time.Duration;
 import java.util.Map;
 
 @Configuration
@@ -42,7 +41,7 @@ public class RedisCacheConfig {
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
 
 
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(1));
+        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
 
         return RedisCacheManager
                 .builder( RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
@@ -104,7 +103,7 @@ public class RedisCacheConfig {
             RateLimitVo vo1 = new RateLimitVo();
             vo1.setInitialPermits(10);  //初始化令牌数
             vo1.setMaxPermits(10);      //最大令牌数
-            vo1.setInterval(1000.0);    //每放入1个令牌时间间隔
+            vo1.setInterval(200.0);    //每放入1个令牌时间间隔  每秒5个
             rateLimitClient.init("111222333", vo1);
         }
 
@@ -118,7 +117,7 @@ public class RedisCacheConfig {
             RateLimitVo vo2 = new RateLimitVo();
             vo2.setInitialPermits(20);
             vo2.setMaxPermits(20);
-            vo2.setInterval(500.0);
+            vo2.setInterval(500.0);   //每秒2个
             rateLimitClient.init("222333444", vo2);
         }
     }

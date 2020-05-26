@@ -5,10 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 @SpringBootApplication   //springboot启动
-public class User8083 {
+public class User8080 {
 
     public static void main(String[] args) {
-        SpringApplication.run(User8083.class,args);
+        SpringApplication.run(User8080.class,args);
     }
 
 
