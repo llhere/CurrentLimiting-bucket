@@ -6,14 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -22,30 +18,17 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import user.domain.RateLimitVo;
 import user.util.RateLimitClient;
 
+import java.util.Map;
+
 @Configuration
 @EnableCaching
 public class RedisCacheConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisCacheConfig.class);
 
+    //令牌桶操作类
     @Autowired
     private RateLimitClient rateLimitClient;
-
-    @Bean
-    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-
-
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.info("Springboot Redis cacheManager 加载完成");
-        }
-
-        return RedisCacheManager
-                .builder( RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
-                .cacheDefaults(redisCacheConfiguration).build();
-    }
-
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
@@ -92,19 +75,33 @@ public class RedisCacheConfig {
      */ 
     private void initBucketConfig(RedisTemplate template) {
 
-        //服务1
-        RateLimitVo vo1 = new RateLimitVo();
-        vo1.setInitialPermits(10);
-        vo1.setMaxPermits(10);
-        vo1.setInterval(1000.0);
-        rateLimitClient.init("111222333", vo1);
+
+        //获取111222333服务信息，若不存在redis则初始化令牌桶，存在则不添加
+        Map bucketConfig111222333 = template.opsForHash().entries("rateLimter:111222333");
+
+        //111222333服务信息不存在
+        if (0 == bucketConfig111222333.size()) {
+            //初始化服务1的令牌桶
+            RateLimitVo vo1 = new RateLimitVo();
+            vo1.setInitialPermits(10);
+            vo1.setMaxPermits(10);
+            vo1.setInterval(1000.0);
+            rateLimitClient.init("111222333", vo1);
+        }
 
 
-        //服务2
-        RateLimitVo vo2 = new RateLimitVo();
-        vo2.setInitialPermits(20);
-        vo2.setMaxPermits(20);
-        vo2.setInterval(500.0);
-        rateLimitClient.init("222333444", vo2);
+        //获取111222333服务信息，若不存在redis则初始化令牌桶，存在则不添加
+        Map bucketConfig222333444 = template.opsForHash().entries("rateLimter:222333444");
+
+        //222333444服务信息不存在
+        if (0 == bucketConfig222333444.size()) {
+            //初始化服务2的令牌桶
+            RateLimitVo vo2 = new RateLimitVo();
+            vo2.setInitialPermits(20);
+            vo2.setMaxPermits(20);
+            vo2.setInterval(500.0);
+            rateLimitClient.init("222333444", vo2);
+        }
+
     }
 }
