@@ -6,12 +6,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -26,9 +31,23 @@ public class RedisCacheConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisCacheConfig.class);
 
-    //令牌桶操作类
     @Autowired
     private RateLimitClient rateLimitClient;
+
+    @Autowired
+    StringRedisTemplate redisTemplate;
+
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+
+
+        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
+
+        return RedisCacheManager
+                .builder( RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
+                .cacheDefaults(redisCacheConfiguration).build();
+    }
+
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
@@ -75,23 +94,22 @@ public class RedisCacheConfig {
      */ 
     private void initBucketConfig(RedisTemplate template) {
 
-
         //获取111222333服务信息，若不存在redis则初始化令牌桶，存在则不添加
-        Map bucketConfig111222333 = template.opsForHash().entries("rateLimter:111222333");
+        Map bucketConfig111222333 = redisTemplate.opsForHash().entries("rateLimter:111222333");
 
         //111222333服务信息不存在
         if (0 == bucketConfig111222333.size()) {
             //初始化服务1的令牌桶
             RateLimitVo vo1 = new RateLimitVo();
-            vo1.setInitialPermits(10);
-            vo1.setMaxPermits(10);
-            vo1.setInterval(1000.0);
+            vo1.setInitialPermits(10);  //初始化令牌数
+            vo1.setMaxPermits(10);      //最大令牌数
+            vo1.setInterval(1000.0);    //每放入1个令牌时间间隔
             rateLimitClient.init("111222333", vo1);
         }
 
 
         //获取111222333服务信息，若不存在redis则初始化令牌桶，存在则不添加
-        Map bucketConfig222333444 = template.opsForHash().entries("rateLimter:222333444");
+        Map bucketConfig222333444 = redisTemplate.opsForHash().entries("rateLimter:222333444");
 
         //222333444服务信息不存在
         if (0 == bucketConfig222333444.size()) {
@@ -102,6 +120,5 @@ public class RedisCacheConfig {
             vo2.setInterval(500.0);
             rateLimitClient.init("222333444", vo2);
         }
-
     }
 }
