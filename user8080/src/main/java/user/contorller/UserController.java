@@ -46,7 +46,7 @@ public class UserController {
         if (bucketConfigMap.size() > 0) {
 
             //令牌桶日志信息
-            String msg = "当前程序：" + bucketConfigMap.get("app") + ",总令牌:" + bucketConfigMap.get("stored_permits") + ",最多令牌：" + bucketConfigMap.get("max_permits") + ",放入一个令牌时间间隔：" + bucketConfigMap.get("interval");
+            String msg = "当前程序：" + bucketConfigMap.get("app") + ",消费后令牌:" + bucketConfigMap.get("stored_permits") + ",最多令牌：" + bucketConfigMap.get("max_permits") + ",放入一个令牌时间间隔：" + bucketConfigMap.get("interval");
 
             //调用脚本并执行 执行结果为false则没有获取到令牌
             if (!execute(a, msg)){

@@ -77,7 +77,7 @@ public class RateLimitClient {
                     allParams);
             return RateLimitResult.getResult(result);
         } catch (Exception e){
-            log.error("execute redis script fail, key:{}, method:{}",
+            log.error("执行脚本失败, key:{}, method:{}",
                     key, method.name(), e);
             return RateLimitResult.ERROR;
         }
