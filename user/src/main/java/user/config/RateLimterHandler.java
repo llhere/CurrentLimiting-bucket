@@ -71,7 +71,6 @@ public class RateLimterHandler {
 
         //根据模块判断令牌桶是否存在，存在则获取配置，不存在初始化配置
         Map mapChen = redisTemplate.opsForHash().entries("mapChen");
-        System.err.println(mapChen);
         //令牌桶
         RateLimitVo vo = new RateLimitVo();
         //不存在则初始化
@@ -101,7 +100,6 @@ public class RateLimterHandler {
         }else if (result == RateLimitResult.SUCCESS){
             LOGGER.info("请求成功" + msg);
         }
-
 
         return proceedingJoinPoint.proceed();
     }

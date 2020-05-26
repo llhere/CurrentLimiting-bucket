@@ -1,6 +1,7 @@
 package user.contorller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +11,9 @@ import user.util.RateLimitClient;
 
 @RestController
 public class UserController {
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
 
@@ -29,8 +33,21 @@ public class UserController {
     @GetMapping("/m1/{id}")
     @RateLimiter(key = "m1")
     public String m1(@PathVariable Long id) {
-
+        //渠道100、机构100、服务a  key=100100a ，100，10，100
+        //渠道101、机构101、服务a  key =101101a，10，10，100
         System.out.println("aaaaaaa");
+//        string  ABC =geteRatelimite(渠道、机构、服务);
+//        if(ABC){
+//            http://www.baiduw.com
+//        }else{
+//            http://erroe.html
+//        }
+
+
+        //服务A配置
+        String m1Config = (String) redisTemplate.opsForValue().get("a1");
+
+
         return "m1被调用";
     }
 
@@ -43,4 +60,8 @@ public class UserController {
         return "m2被调用";
     }
 
+
+    public void init(){
+
+    }
 }
