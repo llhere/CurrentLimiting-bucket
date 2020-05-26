@@ -70,26 +70,26 @@ public class RateLimterHandler {
         //令牌数（桶大小）,最多大小,间隔（每隔间隔数放一个令牌）
 
         //根据模块判断令牌桶是否存在，存在则获取配置，不存在初始化配置
-        boolean exist = redisTemplate.opsForHash().hasKey("hash", "rateLimter:" + limitKey);
-        Map map = redisTemplate.opsForHash().entries("rateLimter:" + limitKey);
+        Map mapChen = redisTemplate.opsForHash().entries("mapChen");
+        System.err.println(mapChen);
         //令牌桶
         RateLimitVo vo = new RateLimitVo();
         //不存在则初始化
-        if (!exist){
-            vo.setInitialPermits(50);
-            vo.setMaxPermits(100);
-            vo.setInterval(1000.0);
-            rateLimitClient.init(limitKey, vo);
-        }else {
-            //获取redis的初始化配置
-//            Map map = redisTemplate.opsForHash().entries("rateLimter:" + limitKey);
-//            Integer initialPermits = (Integer) map.get("stored_permits");
-//            Integer maxPermits = (Integer) map.get("max_permits");
-//            Double interval = (Double) map.get("interval");
-//            vo.setInitialPermits(initialPermits);
-//            vo.setMaxPermits(maxPermits);
-//            vo.setInterval(interval);
-        }
+//        if (map.size() == 0){
+//            vo.setInitialPermits(50);
+//            vo.setMaxPermits(100);
+//            vo.setInterval(1000.0);
+//            rateLimitClient.init(limitKey, vo);
+//        }else {
+//            //获取redis的初始化配置
+////            Map map = redisTemplate.opsForHash().entries("rateLimter:" + limitKey);
+////            Integer initialPermits = (Integer) map.get("stored_permits");
+////            Integer maxPermits = (Integer) map.get("max_permits");
+////            Double interval = (Double) map.get("interval");
+////            vo.setInitialPermits(initialPermits);
+////            vo.setMaxPermits(maxPermits);
+////            vo.setInterval(interval);
+//        }
 
         String msg = "当前总令牌:" + vo.getInitialPermits() + ",最多令牌：" + vo.getMaxPermits() + ",放入一个令牌时间间隔：" + vo.getInterval();
 
@@ -97,7 +97,7 @@ public class RateLimterHandler {
         RateLimitResult result = rateLimitClient.acquire(limitKey);
         if (result == RateLimitResult.ERROR) {
             LOGGER.info("请求[失败]," + msg );
-            return null;
+            return "null";
         }else if (result == RateLimitResult.SUCCESS){
             LOGGER.info("请求成功" + msg);
         }

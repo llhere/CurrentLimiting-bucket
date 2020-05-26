@@ -30,6 +30,7 @@ public class UserController {
     @RateLimiter(key = "m1")
     public String m1(@PathVariable Long id) {
 
+        System.out.println("aaaaaaa");
         return "m1被调用";
     }
 
