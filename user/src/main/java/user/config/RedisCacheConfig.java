@@ -101,9 +101,9 @@ public class RedisCacheConfig {
         if (0 == bucketConfig111222333.size()) {
             //初始化服务1的令牌桶
             RateLimitVo vo1 = new RateLimitVo();
-            vo1.setInitialPermits(10);  //初始化令牌数
-            vo1.setMaxPermits(10);      //最大令牌数
-            vo1.setInterval(200.0);    //每放入1个令牌时间间隔  每秒5个
+            vo1.setInitialPermits(100);  //初始化令牌数
+            vo1.setMaxPermits(100);      //最大令牌数
+            vo1.setInterval(10.0);    //每放入1个令牌时间间隔  每秒100个
             rateLimitClient.init("111222333", vo1);
         }
 
