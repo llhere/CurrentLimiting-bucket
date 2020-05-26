@@ -15,6 +15,7 @@
 
 	<modules>
 		<module>user</module>
+		<module>user8080</module>
     </modules>
 
 

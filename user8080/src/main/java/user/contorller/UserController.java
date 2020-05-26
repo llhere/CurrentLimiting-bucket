@@ -59,12 +59,12 @@ public class UserController {
 
 
     /**
-     * @description 是否可以获取令牌 
+     * @description 是否可以获取令牌
      * @Param [a 服务名称, msg 令牌剩余状态]
      * @return boolean
      * @author chenpengwei
      * @date 2020/5/26 下午 8:12
-     */ 
+     */
     private boolean execute(String a, String msg) {
 
         //执行获取令牌
