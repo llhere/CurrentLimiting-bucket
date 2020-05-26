@@ -1,6 +1,5 @@
 package user.config;
 
-import user.annotation.RateLimiter;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
@@ -15,10 +14,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Component;
+import user.annotation.RateLimiter;
+import user.domain.RateLimitVo;
+import user.enums.RateLimitResult;
+import user.util.RateLimitClient;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 @Aspect
 @Component
@@ -28,6 +30,9 @@ public class RateLimterHandler {
 
     @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    private RateLimitClient rateLimitClient;
 
     private DefaultRedisScript<Long> getRedisScript;
 
@@ -55,53 +60,48 @@ public class RateLimterHandler {
             throw new IllegalArgumentException("the Annotation @RateLimter must used on method!");
         }
 
+
+
         /**
          * 获取注解参数
          */
         // 限流模块key
         String limitKey = rateLimiter.key();
-        ///限流阈值  默认10次
-        long limitTimes = 0;
-        try {
-            limitTimes = (Integer) redisTemplate.opsForValue().get("limit-number");
-        }catch (Exception e){
-            LOGGER.info("限流次数不合法或redis数据为空");
-            limitTimes = 10;
+        //令牌数（桶大小）,最多大小,间隔（每隔间隔数放一个令牌）
+
+        //根据模块判断令牌桶是否存在，存在则获取配置，不存在初始化配置
+        boolean exist = redisTemplate.opsForHash().hasKey("hash", "rateLimter:" + limitKey);
+        Map map = redisTemplate.opsForHash().entries("rateLimter:" + limitKey);
+        //令牌桶
+        RateLimitVo vo = new RateLimitVo();
+        //不存在则初始化
+        if (!exist){
+            vo.setInitialPermits(50);
+            vo.setMaxPermits(100);
+            vo.setInterval(1000.0);
+            rateLimitClient.init(limitKey, vo);
+        }else {
+            //获取redis的初始化配置
+//            Map map = redisTemplate.opsForHash().entries("rateLimter:" + limitKey);
+//            Integer initialPermits = (Integer) map.get("stored_permits");
+//            Integer maxPermits = (Integer) map.get("max_permits");
+//            Double interval = (Double) map.get("interval");
+//            vo.setInitialPermits(initialPermits);
+//            vo.setMaxPermits(maxPermits);
+//            vo.setInterval(interval);
         }
 
-    // 限流超时时间 默认1秒
-        long expireTime = 0;
-        try {
-            expireTime = (Integer) redisTemplate.opsForValue().get("limit-time");
-        }catch (Exception e){
-            LOGGER.info("限流次数不合法或redis数据为空");
-            expireTime = 1;
-        }
+        String msg = "当前总令牌:" + vo.getInitialPermits() + ",最多令牌：" + vo.getMaxPermits() + ",放入一个令牌时间间隔：" + vo.getInterval();
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.info("RateLimterHandler[分布式限流处理器]参数值为-limitTimes={},limitTimeout={}", limitTimes, expireTime);
-        }
-
-        /**
-         * 执行Lua脚本
-         */
-        List<String> keyList = new ArrayList();
-
-        // 设置key值为注解中的值
-        keyList.add(limitKey);
-
-        /**
-         * 调用脚本并执行
-         */
-        Long result = (Long) redisTemplate.execute(getRedisScript, keyList, expireTime, limitTimes);
-        if (result == 0) {
-            String msg = "由于超过单位时间=" + expireTime + "-允许的请求次数=" + limitTimes + "[触发限流],返回null";
-            LOGGER.info(msg);
+        //调用脚本并执行
+        RateLimitResult result = rateLimitClient.acquire(limitKey);
+        if (result == RateLimitResult.ERROR) {
+            LOGGER.info("请求[失败]," + msg );
             return null;
+        }else if (result == RateLimitResult.SUCCESS){
+            LOGGER.info("请求成功" + msg);
         }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.info("RateLimterHandler[分布式限流处理器]限流执行结果-result={},请求[正常]响应", result);
-        }
+
 
         return proceedingJoinPoint.proceed();
     }
