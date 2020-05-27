@@ -145,4 +145,26 @@ public class RateLimitClient {
     private String getKey(String key){
         return RATE_LIMIT_PREFIX + key;
     }
+
+
+
+    /**
+     * @description 执行获取令牌操作
+     * @Param [clientName 服务名称]
+     * @return boolean 获取成功返回true，失败返回false
+     * @author chenpengwei
+     * @date 2020/5/26 下午 8:12
+     */
+    public boolean execute(String clientName) {
+
+        //执行获取令牌
+        RateLimitResult result = acquire(clientName);
+
+        //获取结果失败直接返回false
+        if (result == RateLimitResult.ACQUIRE_FAIL) {
+            return false;
+        }
+
+        return true;
+    }
 }
