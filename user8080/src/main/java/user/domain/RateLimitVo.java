@@ -9,8 +9,8 @@ import lombok.Data;
 @Data
 public class RateLimitVo {
 
-    /** 放入1个令牌到令牌桶的间隔时间 */
-    private Double interval;
+    /** 每秒放入令牌数量 */
+    private Integer oneSecondNum;
 
     /** 令牌桶最大容量 */
     private Integer maxPermits;

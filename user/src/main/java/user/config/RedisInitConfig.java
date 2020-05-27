@@ -103,7 +103,7 @@ public class RedisInitConfig {
             RateLimitVo vo1 = new RateLimitVo();
             vo1.setInitialPermits(100);  //初始化令牌数
             vo1.setMaxPermits(100);      //最大令牌数
-            vo1.setInterval(10.0);    //每放入1个令牌时间间隔  每秒100个
+            vo1.setOneSecondNum(100);    //每秒放入令牌100个
             rateLimitClient.init("111222333", vo1);
         }
 
@@ -115,9 +115,9 @@ public class RedisInitConfig {
         if (0 == bucketConfig222333444.size()) {
             //初始化服务2的令牌桶
             RateLimitVo vo2 = new RateLimitVo();
-            vo2.setInitialPermits(20);
-            vo2.setMaxPermits(20);
-            vo2.setInterval(500.0);   //每秒2个
+            vo2.setInitialPermits(200);
+            vo2.setMaxPermits(200);
+            vo2.setOneSecondNum(200);   //每秒放入令牌100个
             rateLimitClient.init("222333444", vo2);
         }
     }

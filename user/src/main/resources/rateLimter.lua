@@ -4,7 +4,7 @@
 -- last_mill_second 上次放入令牌或者初始化的时间
 -- stored_permits 目前令牌桶中的令牌数量
 -- max_permits 令牌桶容量
--- interval 放令牌间隔
+-- oneSecondNum 每秒放入令牌数量
 -- app 一个标志位，表示对于当前key有没有限流存在
 
 local SUCCESS = 1
@@ -13,11 +13,11 @@ local ACQUIRE_FAIL = -1
 local MODIFY_ERROR = -2
 local UNSUPPORT_METHOD = -500
 
-local ratelimit_info = redis.pcall("HMGET",KEYS[1], "last_mill_second", "stored_permits", "max_permits", "interval", "app")
+local ratelimit_info = redis.pcall("HMGET",KEYS[1], "last_mill_second", "stored_permits", "max_permits", "oneSecondNum", "app")
 local last_mill_second = ratelimit_info[1]
 local stored_permits = tonumber(ratelimit_info[2])
 local max_permits = tonumber(ratelimit_info[3])
-local interval = tonumber(ratelimit_info[4])
+local oneSecondNum = tonumber(ratelimit_info[4])
 local app = ratelimit_info[5]
 
 local method = ARGV[1]
@@ -40,7 +40,7 @@ if method == 'init' then
         "last_mill_second", curr_timestamp,
         "stored_permits", ARGV[3],
         "max_permits", ARGV[4],
-        "interval", ARGV[5],
+        "oneSecondNum", ARGV[5],
         "app", ARGV[6])
     --始终返回成功
     return SUCCESS
@@ -54,7 +54,7 @@ if method == "modify" then
     --只能修改max_permits和interval
     redis.pcall("HMSET", KEYS[1],
         "max_permits", ARGV[3],
-        "interval", ARGV[4])
+        "oneSecondNum", ARGV[4])
 
     return SUCCESS
 
@@ -79,7 +79,7 @@ if method == "acquire" then
     --需要获取令牌数量
     local acquire_permits = tonumber(ARGV[3])
     --计算上一次放令牌到现在的时间间隔中，一共应该放入多少令牌
-    local reserve_permits = math.max(0, math.floor((curr_timestamp - last_mill_second) / interval))
+    local reserve_permits = math.max(0, math.floor((curr_timestamp - last_mill_second) / 1000 * oneSecondNum))
     
     local new_permits = math.min(max_permits, stored_permits + reserve_permits)
     local result = ACQUIRE_FAIL

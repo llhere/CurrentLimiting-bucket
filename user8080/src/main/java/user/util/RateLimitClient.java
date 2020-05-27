@@ -52,7 +52,7 @@ public class RateLimitClient {
         return exec(key, RateLimitMethod.init,
                 rateLimitInfo.getInitialPermits(),
                 rateLimitInfo.getMaxPermits(),
-                rateLimitInfo.getInterval(),
+                rateLimitInfo.getOneSecondNum(),
                 key);
     }
 
@@ -67,7 +67,7 @@ public class RateLimitClient {
     public RateLimitResult modify(String key, RateLimitVo rateLimitInfo){
         return exec(key, RateLimitMethod.modify, key,
                 rateLimitInfo.getMaxPermits(),
-                rateLimitInfo.getInterval());
+                rateLimitInfo.getOneSecondNum());
     }
 
 
