@@ -3,8 +3,6 @@ package user.config;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -25,14 +23,11 @@ import java.util.Map;
 @EnableCaching
 public class RedisInitConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RedisInitConfig.class);
-
     @Autowired
     private RateLimitClient rateLimitClient;
 
     @Autowired
     StringRedisTemplate redisTemplate;
-
 
     /**
      * @description 初始化redis和公司令牌桶配置信息
@@ -40,9 +35,10 @@ public class RedisInitConfig {
      * @return org.springframework.data.redis.core.RedisTemplate<java.lang.String,java.lang.Object>
      * @author chenpengwei
      * @date 2020/5/27 9:55 上午
-     */ 
+     */
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
 
@@ -53,12 +49,12 @@ public class RedisInitConfig {
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         serializer.setObjectMapper(mapper);
-
         template.setValueSerializer(serializer);
+
         //使用StringRedisSerializer来序列化和反序列化redis的key值
         template.setKeySerializer(new StringRedisSerializer());
         template.afterPropertiesSet();
-        LOGGER.info("Springboot RedisTemplate 加载完成");
+        System.out.println("Springboot RedisTemplate 加载完成");
 
         //初始化redis时初始化令牌桶配置信息
         initBucketConfig(template);
@@ -66,32 +62,33 @@ public class RedisInitConfig {
         return template;
     }
 
-    
+
     /**
-     * @description 初始化lua脚本 
+     * @description 初始化lua脚本
      * @Param []
      * @return org.springframework.data.redis.core.script.DefaultRedisScript<java.lang.Long>
      * @author chenpengwei
      * @date 2020/5/27 9:55 上午
-     */ 
+     */
     @Bean("rateLimitLua")
     public DefaultRedisScript<Long> getRateLimitScript() {
+
         DefaultRedisScript<Long> rateLimitLua = new DefaultRedisScript<>();
         rateLimitLua.setLocation(new ClassPathResource("rateLimter.lua"));
         rateLimitLua.setResultType(Long.class);
-        LOGGER.info("初始化lua脚本完成");
+        System.out.println("初始化lua脚本完成");
         return rateLimitLua;
     }
 
 
 
     /**
-     * @description 初始化令牌桶信息（模拟） 
+     * @description 初始化令牌桶信息（模拟）
      * @Param []
      * @return void
      * @author chenpengwei
      * @date 2020/5/26 下午 8:26
-     */ 
+     */
     private void initBucketConfig(RedisTemplate template) {
 
         //获取111222333服务信息，若不存在redis则初始化令牌桶，存在则不添加
@@ -121,4 +118,5 @@ public class RedisInitConfig {
             rateLimitClient.init("222333444", vo2);
         }
     }
+
 }
