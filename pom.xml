@@ -15,7 +15,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 
 
-	<!-- 聚合模块 -->
+	<!-- 聚合的项目 -->
 	<modules>
 		<module>user</module>
 		<module>user8080</module>
