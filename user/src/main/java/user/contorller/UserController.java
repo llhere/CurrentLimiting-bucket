@@ -21,12 +21,11 @@ public class UserController {
 
     @GetMapping("/m1/{id}")
     public String m1(@PathVariable Long id) {
-        //渠道100、机构100、服务a  key=100100a ，100，10，100
-        //渠道101、机构101、服务a  key =101101a，10，10，100
+        //渠道111、机构222、服务333  key=111222333 ，100，100，10.0
+        //渠道222、机构333、服务444  key=111222333， 200，200，5.0
 
         //调用的服务
         String clientName = (1 == id) ? "111222333" : "222333444";
-
 
         //服务A配置
         Map bucketConfigMap = redisTemplate.opsForHash().entries("rateLimter:" + clientName);
@@ -48,12 +47,12 @@ public class UserController {
 
 
     /**
-     * @description 是否可以获取令牌 
-     * @Param [a 服务名称, msg 令牌剩余状态]
+     * @description 是否可以获取令牌
+     * @Param [clientName 服务名称, msg 令牌剩余状态]
      * @return boolean
      * @author chenpengwei
      * @date 2020/5/26 下午 8:12
-     */ 
+     */
     private boolean execute(String clientName, String msg) {
 
         //执行获取令牌
