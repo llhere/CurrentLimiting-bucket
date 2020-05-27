@@ -6,14 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -27,9 +23,9 @@ import java.util.Map;
 
 @Configuration
 @EnableCaching
-public class RedisCacheConfig {
+public class RedisInitConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RedisCacheConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedisInitConfig.class);
 
     @Autowired
     private RateLimitClient rateLimitClient;
@@ -37,18 +33,14 @@ public class RedisCacheConfig {
     @Autowired
     StringRedisTemplate redisTemplate;
 
-    @Bean
-    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
 
-
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
-
-        return RedisCacheManager
-                .builder( RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
-                .cacheDefaults(redisCacheConfiguration).build();
-    }
-
-
+    /**
+     * @description 初始化redis和公司令牌桶配置信息
+     * @Param [factory]
+     * @return org.springframework.data.redis.core.RedisTemplate<java.lang.String,java.lang.Object>
+     * @author chenpengwei
+     * @date 2020/5/27 9:55 上午
+     */ 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -74,6 +66,14 @@ public class RedisCacheConfig {
         return template;
     }
 
+    
+    /**
+     * @description 初始化lua脚本 
+     * @Param []
+     * @return org.springframework.data.redis.core.script.DefaultRedisScript<java.lang.Long>
+     * @author chenpengwei
+     * @date 2020/5/27 9:55 上午
+     */ 
     @Bean("rateLimitLua")
     public DefaultRedisScript<Long> getRateLimitScript() {
         DefaultRedisScript<Long> rateLimitLua = new DefaultRedisScript<>();
