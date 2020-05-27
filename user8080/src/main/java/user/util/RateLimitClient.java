@@ -22,6 +22,7 @@ import java.util.Collections;
 @Slf4j
 public class RateLimitClient {
 
+    //令牌桶服务名前缀
     private static final String RATE_LIMIT_PREFIX = "rateLimter:";
 
     //操作redis的工具类

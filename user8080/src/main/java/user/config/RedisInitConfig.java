@@ -23,9 +23,11 @@ import java.util.Map;
 @EnableCaching
 public class RedisInitConfig {
 
+    //执行lua脚本的bean，在Redis初始化时注入
     @Autowired
     private RateLimitClient rateLimitClient;
 
+    //操作redis的工具类
     @Autowired
     StringRedisTemplate redisTemplate;
 
