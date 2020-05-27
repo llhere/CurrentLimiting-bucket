@@ -72,7 +72,7 @@ end
 
 -- 尝试获取permits
 if method == "acquire" then
-    -- 如果app为null说明没有对这个进行任何配置，返回0代表不限流
+    -- 如果app为null说明没有对这个进行任何配置，返回0
     if(type(app) =='boolean' or app ==nil) then
         return NO_LIMIT
     end
