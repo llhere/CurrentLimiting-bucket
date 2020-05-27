@@ -77,6 +77,7 @@ public class RedisInitConfig {
         rateLimitLua.setLocation(new ClassPathResource("rateLimter.lua"));
         rateLimitLua.setResultType(Long.class);
         System.out.println("初始化lua脚本完成");
+
         return rateLimitLua;
     }
 
