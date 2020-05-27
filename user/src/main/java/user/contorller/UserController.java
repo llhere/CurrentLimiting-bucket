@@ -35,13 +35,13 @@ public class UserController {
             //令牌桶日志信息
             String msg = "当前程序：" + bucketConfigMap.get("app") + ",消费后令牌:" + bucketConfigMap.get("stored_permits") + ",最多令牌：" + bucketConfigMap.get("max_permits") + ",放入一个令牌时间间隔：" + bucketConfigMap.get("interval");
 
-            //z获取令牌 执行结果为false则没有获取到令牌
+            //获取令牌 执行结果为false则没有获取到令牌
             if (!rateLimitClient.execute(clientName)){
-                System.err.println("请求[失败]," + msg );
+                System.out.println("请求[失败]," + msg );
                 return "null";
             }
 
-            System.err.println("请求成功," + msg);
+            System.out.println("请求成功," + msg);
         }
 
         return "m1被调用完成";
