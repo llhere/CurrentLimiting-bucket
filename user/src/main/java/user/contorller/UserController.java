@@ -21,7 +21,7 @@ public class UserController {
     @GetMapping("/m1/{id}")
     public String m1(@PathVariable Long id) {
         //渠道111、机构222、服务333  key=111222333 ，100，100，100
-        //渠道222、机构333、服务444  key=111222333， 200，200，200
+        //渠道222、机构333、服务444  key=111222333， 200，200，2001
 
         //调用的服务
         String clientName = (1 == id) ? "111222333" : "222333444";
