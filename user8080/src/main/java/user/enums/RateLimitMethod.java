@@ -3,7 +3,7 @@ package user.enums;
 /**
  * @author: cpw
  *
- * 限流的具体方法
+ * 调用lua脚本的的具体方法名称
  */
 public enum RateLimitMethod {
 
