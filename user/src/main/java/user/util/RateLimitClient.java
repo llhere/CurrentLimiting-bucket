@@ -1,12 +1,15 @@
 package user.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
+import user.config.RedisInitConfig;
 import user.domain.RateLimitVo;
 import user.enums.RateLimitMethod;
 import user.enums.RateLimitResult;
@@ -21,6 +24,9 @@ import java.util.Collections;
 @Service
 @Slf4j
 public class RateLimitClient {
+
+    //日志信息
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedisInitConfig.class);
 
     //令牌桶服务名前缀
     private static final String RATE_LIMIT_PREFIX = "rateLimter:";
@@ -147,7 +153,6 @@ public class RateLimitClient {
     }
 
 
-
     /**
      * @description 执行获取令牌操作
      * @Param [clientName 服务名称]
@@ -160,11 +165,31 @@ public class RateLimitClient {
         //执行获取令牌
         RateLimitResult result = acquire(clientName);
 
+        //定义处理日志
+        String msg = "服务：" + clientName + "，";
+
+        //返回类型
+        boolean isGet = false;
+
         //获取结果失败直接返回false
         if (result == RateLimitResult.ACQUIRE_FAIL) {
-            return false;
+            msg += "获取令牌失败";
+        }else if (result == RateLimitResult.NO_LIMIT){
+            msg += "未配置令牌桶信息";
+        }else if (result == RateLimitResult.MODIFY_ERROR){
+            msg += "修改令牌桶配置错误";
+        }else if (result == RateLimitResult.UNSUPPORT_METHOD){
+            msg += "不支持的操作";
+        }else if (result == RateLimitResult.ERROR){
+            msg += "获取令牌意外出错";
+        }else if (result == RateLimitResult.SUCCESS){
+            msg += "获取令牌成功";
+            isGet = true;
         }
 
-        return true;
+        //打印日志
+        LOGGER.info(msg);
+
+        return isGet;
     }
 }
