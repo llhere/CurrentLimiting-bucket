@@ -37,7 +37,7 @@ public class UserController {
 
             //获取令牌 执行结果为false则没有获取到令牌
             if (!rateLimitClient.execute(clientName)){
-                System.out.println("请求[失败]," + msg );
+                System.err.println("请求[失败]," + msg );
                 return "null";
             }
 
