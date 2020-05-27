@@ -30,11 +30,11 @@ public class UserController {
         //渠道101、机构101、服务a  key =101101a，10，10，100
 
         //调用的服务
-        String client = (1 == id) ? "111222333" : "222333444";
+        String clientName = (1 == id) ? "111222333" : "222333444";
 
 
         //服务A配置
-        Map bucketConfigMap = redisTemplate.opsForHash().entries("rateLimter:" + client);
+        Map bucketConfigMap = redisTemplate.opsForHash().entries("rateLimter:" + clientName);
 
         //配置不为空
         if (bucketConfigMap.size() > 0) {
@@ -43,7 +43,7 @@ public class UserController {
             String msg = "当前程序：" + bucketConfigMap.get("app") + ",消费后令牌:" + bucketConfigMap.get("stored_permits") + ",最多令牌：" + bucketConfigMap.get("max_permits") + ",放入一个令牌时间间隔：" + bucketConfigMap.get("interval");
 
             //调用脚本并执行 执行结果为false则没有获取到令牌
-            if (!execute(client, msg)){
+            if (!execute(clientName, msg)){
                 return "null";
             }
         }
@@ -59,10 +59,10 @@ public class UserController {
      * @author chenpengwei
      * @date 2020/5/26 下午 8:12
      */ 
-    private boolean execute(String client, String msg) {
+    private boolean execute(String clientName, String msg) {
 
         //执行获取令牌
-        RateLimitResult result = rateLimitClient.acquire(client);
+        RateLimitResult result = rateLimitClient.acquire(clientName);
 
         //获取结果
         if (result == RateLimitResult.ACQUIRE_FAIL) {
