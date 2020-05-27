@@ -26,7 +26,7 @@ public class UserController {
         //调用的服务
         String clientName = (1 == id) ? "111222333" : "222333444";
 
-        //服务A配置  在这里只是为了打印控制台令牌桶的数量，可能打印的结果和实际不匹配，因为在此行代码和获取令牌桶操作中会有其他线程进来
+        //服务A配置  在这里只是为了打印控制台令牌桶的数量，可能打印的结果和实际不匹配，因为在此行代码和获取令牌桶操作之间会有其他线程进来
         Map bucketConfigMap = redisTemplate.opsForHash().entries("rateLimter:" + clientName);
 
         //令牌桶日志信息
