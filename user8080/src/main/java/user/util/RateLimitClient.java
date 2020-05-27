@@ -99,7 +99,7 @@ public class RateLimitClient {
     }
 
     /**
-     * 执行redis的具体方法，限制method,保证没有其他东西进来
+     * 执行redis的具体方法，lua脚本执行redis修改值操作
      * @param key
      * @param method
      * @param params
