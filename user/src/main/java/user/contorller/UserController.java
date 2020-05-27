@@ -1,7 +1,5 @@
 package user.contorller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +12,6 @@ import java.util.Map;
 
 @RestController
 public class UserController {
-
-    //日志
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     StringRedisTemplate redisTemplate;
