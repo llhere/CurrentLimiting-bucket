@@ -168,10 +168,10 @@ public class RateLimitClient {
         //定义处理日志
         String msg = "服务：" + clientName + "，";
 
-        //返回类型
+        //返回类型 默认false
         boolean isGet = false;
 
-        //获取结果失败直接返回false
+        //获取结果失败打印失败信息并反回false
         if (result == RateLimitResult.ACQUIRE_FAIL) {
             msg += "获取令牌失败";
         }else if (result == RateLimitResult.NO_LIMIT){
