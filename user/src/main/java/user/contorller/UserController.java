@@ -21,12 +21,12 @@ public class UserController {
     @GetMapping("/m1/{id}")
     public String m1(@PathVariable Long id) {
         //渠道111、机构222、服务333  key=111222333 ，100，100，100
-        //渠道222、机构333、服务444  key=111222333， 200，200，2001
+        //渠道222、机构333、服务444  key=111222333， 200，200，200
 
         //调用的服务
         String clientName = (1 == id) ? "111222333" : "222333444";
 
-        //服务A配置
+        //服务A配置  在这里只是为了打印控制台令牌桶的数量，可能打印的结果和实际不匹配，因为在此行代码和获取令牌桶操作中会有其他线程进来
         Map bucketConfigMap = redisTemplate.opsForHash().entries("rateLimter:" + clientName);
 
         //令牌桶日志信息
