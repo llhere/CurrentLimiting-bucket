@@ -188,7 +188,7 @@ public class RateLimitClient {
         }
 
         //打印日志
-        LOGGER.info(msg);
+//        LOGGER.info(msg);
 
         return isGet;
     }
