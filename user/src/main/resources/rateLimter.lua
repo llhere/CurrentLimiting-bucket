@@ -78,22 +78,43 @@ if method == "acquire" then
     end
     --需要获取令牌数量
     local acquire_permits = tonumber(ARGV[3])
-    --计算上一次放令牌到现在的时间间隔中，一共应该放入多少令牌
-    local reserve_permits = math.max(0, math.floor((curr_timestamp - last_mill_second) / 1000 * oneSecondNum))
-    
+
+    --计算上一次放令牌到现在的时间间隔，少于一秒不更新，大于一秒则往桶里放oneSecondNum个令牌
+    --与桶里时间戳的差值
+    local diff = math.max(0, curr_timestamp - last_mill_second)
+    --设置间隔毫秒数（1秒）
+    local interval = 1000
+
+    --计算令牌
+    local reserve_permits = 0
+
+    --大于1秒直接放oneSecondNum * interval 个令牌，小于1秒只取不放令牌
+    if diff >= interval then
+        reserve_permits = math.max(0, math.floor(((curr_timestamp - last_mill_second) / 1000))  * oneSecondNum)
+    end
+
     local new_permits = math.min(max_permits, stored_permits + reserve_permits)
     local result = ACQUIRE_FAIL
+
     --如果桶中令牌数量够则放行
     if new_permits >= acquire_permits then
         result = SUCCESS
         new_permits = new_permits - acquire_permits
     end
-    --更新当前桶中的令牌数量 
+
+    --更新当前桶中的令牌数量
     redis.pcall("HSET", KEYS[1], "stored_permits", new_permits)
-    --如果这次有放入令牌，则更新时间
-    if reserve_permits > 0 then
-        redis.pcall("HSET", KEYS[1], "last_mill_second", curr_timestamp)
+
+
+    --相差时间戳大于1秒才更新时间，否则只取令牌
+    if diff >= interval then
+        --如果这次有放入令牌，则更新时间
+        if reserve_permits > 0 then
+            redis.pcall("HSET", KEYS[1], "last_mill_second", curr_timestamp)
+        end
     end
+
+
     return result
 end
 
