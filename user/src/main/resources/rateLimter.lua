@@ -85,7 +85,7 @@ if method == "acquire" then
     --设置间隔毫秒数（1秒）
     local interval = 1000
 
-    --计算令牌
+    --计算该放多少令牌
     local reserve_permits = 0
 
     --大于1秒直接放oneSecondNum * interval 个令牌，小于1秒只取不放令牌
@@ -93,7 +93,10 @@ if method == "acquire" then
         reserve_permits = math.max(0, math.floor(((curr_timestamp - last_mill_second) / 1000))  * oneSecondNum)
     end
 
+    --当前剩余多少令牌，最大值为桶的容量
     local new_permits = math.min(max_permits, stored_permits + reserve_permits)
+
+    --默认返回失败
     local result = ACQUIRE_FAIL
 
     --如果桶中令牌数量够则放行
